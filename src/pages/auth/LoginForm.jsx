@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, logout } from './authSlice';
+import { login } from './authSlice';
+import { fetchProjects } from '../projects/projectSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 const validateEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -14,13 +16,15 @@ const validateEmail = (email) => {
 
 const LoginForm = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loading, error, user } = useSelector((state) => state.auth);
+  const { projects } = useSelector((state) => state.projects);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setFormError('Email and password are required.');
@@ -31,20 +35,42 @@ const LoginForm = () => {
       return;
     }
     setFormError(null);
-    dispatch(login({ email, password }))
-      .then((result) => {
-        if (result.meta && result.meta.requestStatus === 'rejected' && result.payload) {
-          setFormError(result.payload);
-        } else if (result.meta && result.meta.requestStatus === 'fulfilled') {
-          setEmail('');
-          setPassword('');
-          setFormError(null);
-        }
-      });
-  };
+    
+    try {
+      const loginResult = await dispatch(login({ email, password }));
+      
+      if (loginResult.meta && loginResult.meta.requestStatus === 'rejected' && loginResult.payload) {
+        setFormError(loginResult.payload);
+        return;
+      }
+      
+      if (loginResult.meta && loginResult.meta.requestStatus === 'fulfilled') {
+        setEmail('');
+        setPassword('');
+        setFormError(null);
+        
+        // Add a small delay to ensure localStorage is updated
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Check for projects after successful login
+        const projectsResult = await dispatch(fetchProjects());
 
-  const handleLogout = () => {
-    dispatch(logout());
+        if (projectsResult.meta.requestStatus === 'fulfilled') {
+          if (projectsResult.payload && projectsResult.payload.length > 0) {
+            // User has projects, redirect to first project dashboard
+            navigate(`/${projectsResult.payload[0].id}`);
+          } else {
+            // No projects, redirect to create project form
+            navigate('/create-project');
+          }
+        } else if (projectsResult.meta.requestStatus === 'rejected') {
+          // If project fetch fails, still redirect to create project
+          navigate('/create-project');
+        }
+      }
+    } catch (error) {
+      setFormError('An unexpected error occurred. Please try again.');
+    }
   };
 
   if (user) {
@@ -58,7 +84,9 @@ const LoginForm = () => {
             <CardTitle className="text-2xl font-bold">Welcome, {user.name || user.email || 'User'}!</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleLogout} className="w-full mt-4">Logout</Button>
+            <Button type="submit" className="w-full mt-4" disabled={loading}>
+              {loading ? 'Logging in...' : 'Logout'}
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -106,11 +134,7 @@ const LoginForm = () => {
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? (
-                    <EyeOff />
-                  ) : (
-                    <Eye />
-                  )}
+                  {showPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
             </div>
