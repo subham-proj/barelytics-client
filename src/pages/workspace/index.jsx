@@ -2,45 +2,49 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/pages/auth/authSlice';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, BarChart3, FileText, Settings as SettingsIcon, Home, Users as UsersIcon, Bell } from 'lucide-react';
+import {
+  LogOut,
+  User,
+  Home,
+  BarChart3,
+  Puzzle,
+  SlidersHorizontal,
+  Settings as SettingsIcon
+} from 'lucide-react';
 import ProjectSelector from '@/pages/projects/ProjectSelector';
-import DashboardHome from './DashboardHome';
-import Analytics from './Analytics';
-import Reports from './Reports';
-import Users from './Users';
-import Notifications from './Notifications';
+import Overview from './Overview';
+import Integration from './Integration';
+import Configuration from './Configuration';
 import Settings from './Settings';
+import Analytics from './Analytics';
 
 const Dashboard = ({ project }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [activeMenu, setActiveMenu] = useState('overview');
 
   const handleLogout = () => {
     dispatch(logout());
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'overview', label: 'Overview', icon: Home },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'users', label: 'Users', icon: UsersIcon },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'integration', label: 'Integration', icon: Puzzle },
+    { id: 'configuration', label: 'Configuration', icon: SlidersHorizontal },
     { id: 'settings', label: 'Settings', icon: SettingsIcon },
   ];
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'dashboard':
-        return <DashboardHome project={project} />;
+      case 'overview':
+        return <Overview project={project} />;
       case 'analytics':
         return <Analytics project={project} />;
-      case 'reports':
-        return <Reports project={project} />;
-      case 'users':
-        return <Users project={project} />;
-      case 'notifications':
-        return <Notifications project={project} />;
+      case 'integration':
+        return <Integration project={project} />;
+      case 'configuration':
+        return <Configuration project={project} />;
       case 'settings':
         return <Settings project={project} />;
       default:

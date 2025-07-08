@@ -1,15 +1,10 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
-const DashboardHome = ({ project }) => (
+const Overview = ({ project }) => (
   <div className="max-w-4xl">
     <div className="mb-6">
-      <h1 className="text-3xl font-bold">Welcome back!</h1>
-      {project && (
-        <p className="text-muted-foreground mt-2">
-          You're viewing: <span className="font-semibold">{project.name}</span>
-        </p>
-      )}
+      <h1 className="text-3xl font-bold">Overview</h1>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
@@ -34,4 +29,4 @@ const DashboardHome = ({ project }) => (
   </div>
 );
 
-export default DashboardHome; 
+export default Overview; 
