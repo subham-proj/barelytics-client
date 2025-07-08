@@ -23,7 +23,7 @@ function ProjectDashboard() {
   }, [dispatch, projects && projects.length]);
 
   if (!fetched) {
-    return <Loading text="Loading project..." />;
+    return <Loading text="Loading..." />;
   }
 
   // Find the current project
