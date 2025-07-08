@@ -60,6 +60,7 @@ const initialState = {
   currentProject: null,
   loading: false,
   error: null,
+  fetched: false, // <-- add this
 };
 
 const projectSlice = createSlice({
@@ -73,6 +74,7 @@ const projectSlice = createSlice({
       state.projects = [];
       state.currentProject = null;
       state.error = null;
+      state.fetched = false;
     },
   },
   extraReducers: (builder) => {
@@ -86,10 +88,12 @@ const projectSlice = createSlice({
         state.loading = false;
         state.projects = action.payload;
         state.error = null;
+        state.fetched = true;
       })
       .addCase(fetchProjects.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.fetched = true;
       })
       // Create project
       .addCase(createProject.pending, (state) => {

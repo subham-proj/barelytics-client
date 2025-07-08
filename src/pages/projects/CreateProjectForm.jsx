@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createProject } from './projectSlice';
+import { logout } from '@/pages/auth/authSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, LogOut, User } from 'lucide-react';
 
 const CreateProjectForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.projects);
+  const { user } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -54,8 +56,35 @@ const CreateProjectForm = () => {
     navigate(-1); // Go back to previous page
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white relative">
+      {/* Top-right user info and logout */}
+      <div className="absolute top-4 right-4 flex items-center space-x-3 z-10">
+        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+          {user?.email ? (
+            <span className="text-sm font-semibold text-primary">
+              {user.email.charAt(0).toUpperCase()}
+            </span>
+          ) : (
+            <User className="w-5 h-5 text-primary" />
+          )}
+        </div>
+        <span className="text-sm text-gray-700 font-medium truncate max-w-[120px]">{user?.email || 'User'}</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleLogout}
+          className="text-gray-500 hover:text-gray-700"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5" />
+        </Button>
+      </div>
       <Card className="w-full max-w-lg mx-auto p-8 shadow-2xl border-0">
         <CardHeader className="flex flex-col items-center gap-2 mb-2">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
