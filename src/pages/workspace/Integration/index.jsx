@@ -23,7 +23,7 @@ const Integration = ({ project }) => {
   };
 
   return (
-    <div className="w-full px-2 sm:px-4 md:px-8 py-4 md:py-8">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-8 py-4 md:py-8">
       <Card className="shadow-xl border-0 w-full max-w-6xl mx-auto">
         <CardHeader className="flex flex-row items-center gap-3 md:gap-4 pb-2 border-b">
           <div className="bg-primary/10 rounded-full p-2 md:p-3 flex items-center justify-center">
