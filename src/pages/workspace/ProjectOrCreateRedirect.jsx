@@ -16,9 +16,12 @@ const ProjectOrCreateRedirect = () => {
       dispatch(fetchProjects());
     } else if (
       error &&
-      (String(error).toLowerCase().includes('token') || String(error).toLowerCase().includes('auth')) &&
-      !user // Only log out if user is not present
+      (String(error).toLowerCase().includes('token') || 
+       String(error).toLowerCase().includes('auth') ||
+       String(error).toLowerCase().includes('authentication required') ||
+       String(error).toLowerCase().includes('expired token'))
     ) {
+      // Log out user and redirect to login for any auth error
       dispatch(logout());
       dispatch(clearProjects());
       navigate('/login', { replace: true });

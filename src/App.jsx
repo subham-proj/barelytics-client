@@ -12,7 +12,7 @@ import Loading from '@/components/ui/loading';
 
 function ProjectDashboard() {
   const dispatch = useDispatch();
-  const { projects, currentProject, loading, fetched } = useSelector((state) => state.projects);
+  const { projects, currentProject, loading, fetched, error } = useSelector((state) => state.projects);
   const location = useLocation();
   const projectId = location.pathname.split('/')[1]; // Get project ID from URL
 
@@ -29,7 +29,20 @@ function ProjectDashboard() {
   // Find the current project
   const project = projects.find(p => String(p.id) === String(projectId)) || currentProject;
 
-  if (projects.length === 0 && fetched) {
+  // Check if error is auth-related
+  const isAuthError = error && (
+    error.includes('Authentication required') || 
+    error.includes('Invalid or expired token') ||
+    error.includes('Please log in again')
+  );
+
+  // If auth error, redirect to login
+  if (isAuthError) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Only redirect to create-project if no auth error and no projects
+  if (projects.length === 0 && fetched && !isAuthError) {
     return <Navigate to="/create-project" replace />;
   }
 
