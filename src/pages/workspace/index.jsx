@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/pages/auth/authSlice';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,21 @@ const Dashboard = ({ project }) => {
   const { user } = useSelector((state) => state.auth);
   const [activeMenu, setActiveMenu] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // for desktop
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Handle responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 900) {
+        setSidebarCollapsed(true);
+      } else if (window.innerWidth > 900) {
+        setSidebarCollapsed(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());
