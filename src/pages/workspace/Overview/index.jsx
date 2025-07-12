@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, Eye, Clock, TrendingDown, TrendingUp, RefreshCw } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchOverview, fetchTopPages, fetchTopReferrers, setCurrentProject } from './analyticsSlice';
-import Loading from '@/components/ui/loading';
+import { fetchOverview, fetchTopPages, fetchTopReferrers, setCurrentProject } from './analyticsOverviewSlice';
 import DateRangePicker from '@/components/ui/date-range-picker';
 import { Button } from '@/components/ui/button';
+import { StatCardShimmer, ListCardShimmer } from '@/components/ui/shimmer';
 import { 
   formatNumber,  
   getDefaultDateRange,
@@ -15,6 +15,7 @@ import {
 const Overview = ({ project }) => {
   const dispatch = useDispatch();
   const { overview, topPages, topReferrers, loading, error, currentProjectId } = useSelector((state) => state.analytics);
+  const [showShimmer, setShowShimmer] = useState(true);
   
   // Default to last 30 days
   const [dateRange, setDateRange] = useState(() => {
@@ -31,6 +32,18 @@ const Overview = ({ project }) => {
       dispatch(setCurrentProject(project.id));
     }
   }, [dispatch, project?.id, currentProjectId]);
+
+  // Control shimmer display timing
+  useEffect(() => {
+    if (loading) {
+      setShowShimmer(true);
+    } else {
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   // Fetch data only when project changes or date range changes
   useEffect(() => {
@@ -66,10 +79,9 @@ const Overview = ({ project }) => {
   };
 
   if (!project) return null;
-  if (loading && !overview) return <Loading text="Loading analytics..." />;
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
 
-  const stats = formatAnalyticsData(overview);
+  const stats = overview ? formatAnalyticsData(overview) : [];
 
   const getTrendIcon = (indicator) => {
     switch (indicator) {
@@ -123,69 +135,93 @@ const Overview = ({ project }) => {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <Card key={stat.label} className="h-full">
-            <CardContent className="p-5 flex flex-col gap-2 h-full">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-base md:text-lg">{stat.label}</span>
-                {stat.label === 'Total Visitors' && <Users className="w-5 h-5 text-muted-foreground" />}
-                {stat.label === 'Page Views' && <Eye className="w-5 h-5 text-muted-foreground" />}
-                {stat.label === 'Avg. Session' && <Clock className="w-5 h-5 text-muted-foreground" />}
-                {stat.label === 'Bounce Rate' && <TrendingDown className="w-5 h-5 text-muted-foreground" />}
-              </div>
-              <div className="text-2xl md:text-3xl font-extrabold">{stat.value}</div>
-              <div className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground">
-                {getTrendIcon(stat.changeIndicator)}
-                {stat.change}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {showShimmer || (loading && !overview) ? (
+          // Show shimmer placeholders while loading
+          [...Array(4)].map((_, index) => (
+            <Card key={index} className="h-full">
+              <CardContent>
+                <StatCardShimmer />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          // Show actual data
+          stats.map((stat) => (
+            <Card key={stat.label} className="h-full">
+              <CardContent className="p-5 flex flex-col gap-2 h-full">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-base md:text-lg">{stat.label}</span>
+                  {stat.label === 'Total Visitors' && <Users className="w-5 h-5 text-muted-foreground" />}
+                  {stat.label === 'Page Views' && <Eye className="w-5 h-5 text-muted-foreground" />}
+                  {stat.label === 'Avg. Session' && <Clock className="w-5 h-5 text-muted-foreground" />}
+                  {stat.label === 'Bounce Rate' && <TrendingDown className="w-5 h-5 text-muted-foreground" />}
+                </div>
+                <div className="text-2xl md:text-3xl font-extrabold">{stat.value}</div>
+                <div className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground">
+                  {getTrendIcon(stat.changeIndicator)}
+                  {stat.change}
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Top Pages & Top Referrers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Pages */}
         <Card>
-          <CardContent className="p-5">
-            <div className="mb-4">
-              <span className="text-lg md:text-xl font-bold">Top Pages</span>
-              <div className="text-muted-foreground text-sm md:text-base">Most visited pages on your website</div>
-            </div>
-            <div className="space-y-3">
-              {topPages.length > 0 ? (
-                topPages.map((page, index) => (
-                  <div key={page.page_url} className="flex justify-between items-center text-sm md:text-base">
-                    <span className="font-mono truncate flex-1 mr-4">{page.page_url}</span>
-                    <span className="font-semibold text-right whitespace-nowrap">{formatNumber(page.views)} views</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground py-8">No page data available</div>
-              )}
-            </div>
+          <CardContent>
+            {showShimmer || (loading && topPages.length === 0) ? (
+              <ListCardShimmer />
+            ) : (
+              <div className="p-5">
+                <div className="mb-4">
+                  <span className="text-lg md:text-xl font-bold">Top Pages</span>
+                  <div className="text-muted-foreground text-sm md:text-base">Most visited pages on your website</div>
+                </div>
+                <div className="space-y-3">
+                  {topPages.length > 0 ? (
+                    topPages.map((page, index) => (
+                      <div key={page.page_url} className="flex justify-between items-center text-sm md:text-base">
+                        <span className="font-mono truncate flex-1 mr-4">{page.page_url}</span>
+                        <span className="font-semibold text-right whitespace-nowrap">{formatNumber(page.views)} views</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">No page data available</div>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Top Referrers */}
         <Card>
-          <CardContent className="p-5">
-            <div className="mb-4">
-              <span className="text-lg md:text-xl font-bold">Top Referrers</span>
-              <div className="text-muted-foreground text-sm md:text-base">Traffic sources bringing visitors</div>
-            </div>
-            <div className="space-y-3">
-              {topReferrers.length > 0 ? (
-                topReferrers.map((ref) => (
-                  <div key={ref.referrer} className="flex justify-between items-center text-sm md:text-base">
-                    <span className="font-mono truncate flex-1 mr-4">{ref.referrer}</span>
-                    <span className="font-semibold text-right whitespace-nowrap">{formatNumber(ref.visits)} visits</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground py-8">No referrer data available</div>
-              )}
-            </div>
+          <CardContent>
+            {showShimmer || (loading && topReferrers.length === 0) ? (
+              <ListCardShimmer />
+            ) : (
+              <div className="p-5">
+                <div className="mb-4">
+                  <span className="text-lg md:text-xl font-bold">Top Referrers</span>
+                  <div className="text-muted-foreground text-sm md:text-base">Traffic sources bringing visitors</div>
+                </div>
+                <div className="space-y-3">
+                  {topReferrers.length > 0 ? (
+                    topReferrers.map((ref) => (
+                      <div key={ref.referrer} className="flex justify-between items-center text-sm md:text-base">
+                        <span className="font-mono truncate flex-1 mr-4">{ref.referrer}</span>
+                        <span className="font-semibold text-right whitespace-nowrap">{formatNumber(ref.visits)} visits</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">No referrer data available</div>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
