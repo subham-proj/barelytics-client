@@ -1,20 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { getAuthToken } from '@/lib/auth';
+import { createAuthAxios, createAsyncThunkErrorHandler } from '@/lib/api';
 import { CONFIG_ENDPOINT } from '@/lib/constants';
-
-// Create axios instance with auth header
-const createAuthAxios = () => {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-  return axios.create({
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
 
 // Async thunk to fetch config
 export const fetchConfig = createAsyncThunk(
@@ -25,13 +11,7 @@ export const fetchConfig = createAsyncThunk(
       const response = await authAxios.get(CONFIG_ENDPOINT(projectId));
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to fetch config');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );
@@ -45,13 +25,7 @@ export const updateConfig = createAsyncThunk(
       const response = await authAxios.put(CONFIG_ENDPOINT(projectId), config);
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to save config');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );

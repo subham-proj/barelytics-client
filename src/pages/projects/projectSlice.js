@@ -1,21 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { PROJECTS_ENDPOINT } from '../../lib/constants';
-import { getAuthToken } from '../../lib/auth';
-import axios from 'axios';
-
-// Create axios instance with auth header
-const createAuthAxios = () => {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-  
-  return axios.create({
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+import { createAuthAxios, createAsyncThunkErrorHandler } from '@/lib/api';
+import { PROJECTS_ENDPOINT } from '@/lib/constants';
 
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
@@ -25,13 +10,7 @@ export const fetchProjects = createAsyncThunk(
       const response = await authAxios.get(PROJECTS_ENDPOINT);
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to fetch projects');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );
@@ -44,13 +23,7 @@ export const createProject = createAsyncThunk(
       const response = await authAxios.post(PROJECTS_ENDPOINT, projectData);
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to create project');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );
@@ -60,7 +33,7 @@ const initialState = {
   currentProject: null,
   loading: false,
   error: null,
-  fetched: false, // <-- add this
+  fetched: false, 
 };
 
 const projectSlice = createSlice({

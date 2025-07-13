@@ -1,24 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { getAuthToken } from '@/lib/auth';
+import { createAuthAxios, createAsyncThunkErrorHandler } from '@/lib/api';
 import { 
   ANALYTICS_OVERVIEW_ENDPOINT, 
   ANALYTICS_TOP_PAGES_ENDPOINT, 
   ANALYTICS_TOP_REFERRERS_ENDPOINT 
 } from '@/lib/constants';
-
-// Create axios instance with auth header
-const createAuthAxios = () => {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-  return axios.create({
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
 
 // Check if data is stale (older than 5 minutes)
 const isDataStale = (lastFetched) => {
@@ -33,7 +19,7 @@ export const fetchOverview = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { overview, lastFetched, currentProjectId } = state.analytics;
+      const { overview, lastFetched, currentProjectId } = state.overview;
       
       // Don't fetch if we have recent data for the same project and date range, unless forced
       if (
@@ -49,13 +35,7 @@ export const fetchOverview = createAsyncThunk(
       const response = await authAxios.get(ANALYTICS_OVERVIEW_ENDPOINT(projectId, from, to));
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to fetch overview data');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );
@@ -66,7 +46,7 @@ export const fetchTopPages = createAsyncThunk(
   async ({ projectId, limit = 5, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { topPages, lastFetched, currentProjectId } = state.analytics;
+      const { topPages, lastFetched, currentProjectId } = state.overview;
       
       // Don't fetch if we have recent data for the same project, unless forced
       if (
@@ -82,13 +62,7 @@ export const fetchTopPages = createAsyncThunk(
       const response = await authAxios.get(ANALYTICS_TOP_PAGES_ENDPOINT(projectId, limit));
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to fetch top pages');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );
@@ -99,7 +73,7 @@ export const fetchTopReferrers = createAsyncThunk(
   async ({ projectId, limit = 5, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { topReferrers, lastFetched, currentProjectId } = state.analytics;
+      const { topReferrers, lastFetched, currentProjectId } = state.overview;
       
       // Don't fetch if we have recent data for the same project, unless forced
       if (
@@ -115,13 +89,7 @@ export const fetchTopReferrers = createAsyncThunk(
       const response = await authAxios.get(ANALYTICS_TOP_REFERRERS_ENDPOINT(projectId, limit));
       return response.data;
     } catch (error) {
-      if (error.message === 'No authentication token found') {
-        return rejectWithValue('Authentication required. Please log in again.');
-      }
-      if (error.response?.status === 401) {
-        return rejectWithValue('Invalid or expired token. Please log in again.');
-      }
-      return rejectWithValue(error.response?.data?.error || 'Failed to fetch top referrers');
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
   }
 );
@@ -136,8 +104,8 @@ const initialState = {
   currentProjectId: null,
 };
 
-const analyticsSlice = createSlice({
-  name: 'analytics',
+const analyticsOverviewSlice = createSlice({
+  name: 'overview',
   initialState,
   reducers: {
     clearAnalytics: (state) => {
@@ -202,5 +170,5 @@ const analyticsSlice = createSlice({
   },
 });
 
-export const { clearAnalytics, setCurrentProject } = analyticsSlice.actions;
-export default analyticsSlice.reducer; 
+export const { clearAnalytics, setCurrentProject } = analyticsOverviewSlice.actions;
+export default analyticsOverviewSlice.reducer; 

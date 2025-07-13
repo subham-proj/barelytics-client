@@ -14,7 +14,7 @@ import {
 
 const Overview = ({ project }) => {
   const dispatch = useDispatch();
-  const { overview, topPages, topReferrers, loading, error, currentProjectId } = useSelector((state) => state.analytics);
+  const { overview, topPages, topReferrers, loading, error, currentProjectId } = useSelector((state) => state.overview);
   const [showShimmer, setShowShimmer] = useState(true);
   
   // Default to last 30 days
@@ -181,7 +181,7 @@ const Overview = ({ project }) => {
                   <div className="text-muted-foreground text-sm md:text-base">Most visited pages on your website</div>
                 </div>
                 <div className="space-y-3">
-                  {topPages.length > 0 ? (
+                  {topPages?.length > 0 ? (
                     topPages.map((page, index) => (
                       <div key={page.page_url} className="flex justify-between items-center text-sm md:text-base">
                         <span className="font-mono truncate flex-1 mr-4">{page.page_url}</span>
@@ -209,7 +209,7 @@ const Overview = ({ project }) => {
                   <div className="text-muted-foreground text-sm md:text-base">Traffic sources bringing visitors</div>
                 </div>
                 <div className="space-y-3">
-                  {topReferrers.length > 0 ? (
+                  {topReferrers?.length > 0 ? (
                     topReferrers.map((ref) => (
                       <div key={ref.referrer} className="flex justify-between items-center text-sm md:text-base">
                         <span className="font-mono truncate flex-1 mr-4">{ref.referrer}</span>
