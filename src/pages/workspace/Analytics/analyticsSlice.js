@@ -227,6 +227,25 @@ const analyticsSlice = createSlice({
       };
     },
     setCurrentProject: (state, action) => {
+      // If the project is actually changing, clear all data
+      if (state.currentProjectId !== action.payload) {
+        state.newVsReturning = null;
+        state.conversionRate = null;
+        state.globalReach = null;
+        state.deviceTypes = null;
+        state.topLocations = null;
+        state.browserAnalytics = null;
+        state.error = null;
+        state.lastFetched = null;
+        state.individualErrors = {
+          newVsReturning: null,
+          conversionRate: null,
+          globalReach: null,
+          deviceTypes: null,
+          topLocations: null,
+          browserAnalytics: null,
+        };
+      }
       state.currentProjectId = action.payload;
     },
     clearIndividualError: (state, action) => {

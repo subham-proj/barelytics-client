@@ -117,6 +117,14 @@ const analyticsOverviewSlice = createSlice({
       state.currentProjectId = null;
     },
     setCurrentProject: (state, action) => {
+      // If the project is actually changing, clear all data
+      if (state.currentProjectId !== action.payload) {
+        state.overview = null;
+        state.topPages = [];
+        state.topReferrers = [];
+        state.error = null;
+        state.lastFetched = null;
+      }
       state.currentProjectId = action.payload;
     },
   },
