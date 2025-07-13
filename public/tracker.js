@@ -33,10 +33,46 @@
     } catch (e) { return null; }
   }
 
+  function getBrowserInfo() {
+    var ua = navigator.userAgent;
+    var browser = 'Unknown';
+    var device = 'desktop';
+
+    // Browser detection
+    if (ua.includes('Chrome')) {
+      browser = 'Chrome';
+    } else if (ua.includes('Firefox')) {
+      browser = 'Firefox';
+    } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+      browser = 'Safari';
+    } else if (ua.includes('Edge')) {
+      browser = 'Edge';
+    } else if (ua.includes('Opera')) {
+      browser = 'Opera';
+    }
+
+    // Device detection
+    if (ua.includes('Mobile') || ua.includes('Android') || ua.includes('iPhone')) {
+      device = 'mobile';
+    } else if (ua.includes('Tablet') || ua.includes('iPad')) {
+      device = 'tablet';
+    }
+
+    return {
+      browser: browser,
+      device: device
+    };
+  }
+
   function fetchLocation(cb) {
     fetch('https://ipapi.co/json/')
       .then(function(res) { return res.json(); })
-      .then(cb)
+      .then(function(data) {
+        cb({
+          country: data.country,
+          country_name: data.country_name
+        });
+      })
       .catch(function() { cb(null); });
   }
 
@@ -44,22 +80,28 @@
     .then(function(res) { return res.json(); })
     .then(function(config) {
       var sessionId = getSessionId();
+      var browserInfo = getBrowserInfo();
       var trackedScroll = 0;
       var timingSent = false;
 
       if (config.page_views) {
         var data = {
-          type: 'pageview',
+          type: 'page_view',
           project_id: projectId,
           url: location.href,
           referrer: document.referrer,
           session_id: sessionId,
-          ts: Date.now()
+          ts: Date.now(),
+          browser: browserInfo.browser,
+          device: browserInfo.device
         };
         if (config.referrers) data.referrer = document.referrer;
         if (config.locations) {
           fetchLocation(function(loc) {
-            if (loc) data.location = loc;
+            if (loc) {
+              data.country = loc.country;
+              data.country_name = loc.country_name;
+            }
             post(data);
           });
         } else {
@@ -73,7 +115,9 @@
           project_id: projectId,
           session_id: sessionId,
           url: location.href,
-          ts: Date.now()
+          ts: Date.now(),
+          browser: browserInfo.browser,
+          device: browserInfo.device
         });
       }
 
@@ -89,7 +133,9 @@
             project_id: projectId,
             session_id: sessionId,
             url: location.href,
-            ts: Date.now()
+            ts: Date.now(),
+            browser: browserInfo.browser,
+            device: browserInfo.device
           });
         });
       }
@@ -105,7 +151,9 @@
               project_id: projectId,
               session_id: sessionId,
               url: location.href,
-              ts: Date.now()
+              ts: Date.now(),
+              browser: browserInfo.browser,
+              device: browserInfo.device
             });
           }
         });
@@ -121,6 +169,8 @@
               session_id: sessionId,
               url: location.href,
               ts: Date.now(),
+              browser: browserInfo.browser,
+              device: browserInfo.device,
               timing: {
                 domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
                 load: timing.loadEventEnd - timing.navigationStart
@@ -140,7 +190,9 @@
             project_id: projectId,
             session_id: sessionId,
             url: location.href,
-            ts: Date.now()
+            ts: Date.now(),
+            browser: browserInfo.browser,
+            device: browserInfo.device
           });
         };
       }
