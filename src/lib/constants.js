@@ -41,3 +41,4 @@ export const ANALYTICS_BROWSER_ANALYTICS_ENDPOINT = (projectId, from, to) =>
 
 // Settings endpoints
 export const ACCOUNT_SETTINGS_ENDPOINT = `${BASE_URL}/users/account-settings`;
+export const CHANGE_PASSWORD_ENDPOINT = `${BASE_URL}/users/change-password`;

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ACCOUNT_SETTINGS_ENDPOINT } from '@/lib/constants';
+import { ACCOUNT_SETTINGS_ENDPOINT, CHANGE_PASSWORD_ENDPOINT } from '@/lib/constants';
 import { createAuthAxios, createAsyncThunkErrorHandler } from '@/lib/api';
 
 export const fetchAccountSettings = createAsyncThunk(
@@ -24,6 +24,24 @@ export const updateAccountSettings = createAsyncThunk(
         user_id,
         full_name,
         company,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
+    }
+  }
+);
+
+export const changePassword = createAsyncThunk(
+  'settings/changePassword',
+  async ({ user_id, email, current_password, new_password }, { rejectWithValue }) => {
+    try {
+      const authAxios = createAuthAxios();
+      const response = await authAxios.post(CHANGE_PASSWORD_ENDPOINT, {
+        user_id,
+        email,
+        current_password,
+        new_password,
       });
       return response.data;
     } catch (error) {
@@ -91,6 +109,21 @@ const settingsSlice = createSlice({
         state.company = action.payload.company;
       })
       .addCase(updateAccountSettings.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = null;
+      })
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.success = 'Password changed successfully.';
+      })
+      .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = null;

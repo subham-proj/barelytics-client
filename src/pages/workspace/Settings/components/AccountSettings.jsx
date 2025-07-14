@@ -7,6 +7,8 @@ import ChangePasswordModal from './ChangePasswordModal';
 import { useToast } from '@/hooks/use-toast';
 import useSettingsState from '../hooks/useSettingsState';
 import {ListCardShimmer} from '@/components/ui/shimmer';
+import { useDispatch, useSelector } from 'react-redux';
+import { changePassword } from '../settingsSlice';
 
 const AccountSettings = () => {
   const {
@@ -26,6 +28,9 @@ const AccountSettings = () => {
   } = useSettingsState();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const { toast } = useToast();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const settings = useSelector((state) => state.settings);
 
   useEffect(() => {
     if (error) {
@@ -45,11 +50,38 @@ const AccountSettings = () => {
     }
   }, [error, success, toast]);
 
-  // Password change handler (stub)
+  // Password change handler
   const handlePasswordChange = async (passwordData) => {
-    // TODO: Implement real password change API call
-    alert('Password changed successfully!');
-    setIsPasswordModalOpen(false);
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'User not found in session.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const payload = {
+      user_id: user.id || user.user_id || user.uuid,
+      email: user.email,
+      current_password: passwordData.currentPassword,
+      new_password: passwordData.newPassword,
+    };
+    const result = await dispatch(changePassword(payload));
+    if (result.meta.requestStatus === 'fulfilled') {
+      toast({
+        title: 'Success',
+        description: 'Password changed successfully!',
+        icon: <CheckCircle className="text-green-600 w-5 h-5 mr-2" />,
+      });
+      setIsPasswordModalOpen(false);
+    } else {
+      toast({
+        title: 'Error',
+        description: result.payload || 'Password change failed',
+        variant: 'destructive',
+        icon: <AlertTriangle className="text-red-500 w-5 h-5 mr-2" />,
+      });
+    }
   };
 
   if (loading && !fetched) {
