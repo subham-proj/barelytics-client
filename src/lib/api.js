@@ -19,7 +19,7 @@ export const handleApiError = (error) => {
   if (error.message === 'No authentication token found') {
     throw new Error('Authentication required. Please log in again.');
   }
-  if (error.response?.status === 401) {
+  if (error.response?.status === 401 || (error.response?.status === 400 && error.response?.data?.error === 'JWT expired')) {
     throw new Error('Invalid or expired token. Please log in again.');
   }
   if (error.response?.status === 404) {
@@ -68,8 +68,12 @@ export const isDataStale = (lastFetched, minutes = 5) => {
 
 // Common async thunk error handler for Redux
 export const createAsyncThunkErrorHandler = (error) => {
-  const errorMessage = handleApiError(error);
-  return errorMessage.message;
+  try {
+    handleApiError(error);
+  } catch (e) {
+    return e.message;
+  }
+  return 'Unknown error';
 };
 
 // Helper function to create a simple API call with caching
