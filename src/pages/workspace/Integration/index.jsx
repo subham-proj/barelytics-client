@@ -9,7 +9,7 @@ const Integration = ({ project }) => {
   if (!project) return null;
 
   // Example script with project id
-  const script = `<script async src="https://analytics.barelytics.app/tracker.js" data-project-id="${project.id}"></script>`;
+  const script = `<script async src="https://analytics.pagemetrics.app/tracker.js" data-project-id="${project.id}"></script>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(script);
@@ -31,7 +31,7 @@ const Integration = ({ project }) => {
           </div>
           <div>
             <CardTitle className="text-lg md:text-2xl">Integration</CardTitle>
-            <CardDescription className="text-sm md:text-base">Connect Barelytics to your website</CardDescription>
+            <CardDescription className="text-sm md:text-base">Connect PageMetrics to your website</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="pt-6 md:pt-8 pb-6 md:pb-8">

@@ -118,7 +118,7 @@ const Configuration = ({ project }) => {
     <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-8 py-6 md:py-10">
       <h1 className="text-2xl md:text-3xl font-bold mb-1">Configuration</h1>
       <p className="text-muted-foreground text-base mb-8">
-        Customize your tracking settings and preferences. These options control what data is collected by your Barelytics tracker script.
+        Customize your tracking settings and preferences. These options control what data is collected by your PageMetrics tracker script.
       </p>
       
       <Card className="mb-6">

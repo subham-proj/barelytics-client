@@ -98,9 +98,9 @@ const LoginForm = () => {
       <Card className="w-full max-w-lg mx-auto p-8 shadow-2xl border-0">
         <CardHeader className="flex flex-col items-center gap-2 mb-2">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            <img src="/vite.svg" alt="Barelytics Logo" className="w-10 h-10" />
+            <img src="/vite.svg" alt="PageMetrics Logo" className="w-10 h-10" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Sign in to Barelytics</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Sign in to PageMetrics</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -113,7 +113,7 @@ const LoginForm = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                placeholder="john@barelytics.app"
+                placeholder="john@pagemetrics.xyz"
               />
             </div>
             <div className="space-y-2">

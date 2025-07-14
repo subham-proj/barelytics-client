@@ -95,7 +95,7 @@ const Dashboard = ({ project }) => {
         >
           <MenuIcon className="w-6 h-6" />
         </Button>
-        <h1 className="text-xl font-bold text-primary">Barelytics</h1>
+        <h1 className="text-xl font-bold text-primary">PageMetrics</h1>
       </div>
 
       {/* Sidebar (mobile & desktop) */}
@@ -136,11 +136,11 @@ const Dashboard = ({ project }) => {
           {/* Branding */}
           {sidebarCollapsed && window.innerWidth >= 768 ? (
             <div className="hidden md:flex items-center justify-center h-10">
-              <span className="text-3xl font-extrabold text-primary">B</span>
+              <span className="text-3xl font-extrabold text-primary">PM</span>
             </div>
           ) : (
             <div className="flex items-center justify-center h-10">
-              <h1 className="text-2xl font-bold text-primary transition-all duration-300">Barelytics</h1>
+              <h1 className="text-2xl font-bold text-primary transition-all duration-300">PageMetrics</h1>
             </div>
           )}
           {/* ProjectSelector: show on mobile always, and on desktop only if not collapsed */}

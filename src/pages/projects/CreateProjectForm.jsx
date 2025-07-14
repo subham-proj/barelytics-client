@@ -88,7 +88,7 @@ const CreateProjectForm = () => {
       <Card className="w-full max-w-lg mx-auto p-8 shadow-2xl border-0">
         <CardHeader className="flex flex-col items-center gap-2 mb-2">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            <img src="/vite.svg" alt="Barelytics Logo" className="w-10 h-10" />
+            <img src="/vite.svg" alt="PageMetrics Logo" className="w-10 h-10" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">Create a Project</CardTitle>
         </CardHeader>

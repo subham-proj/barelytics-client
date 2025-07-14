@@ -2,7 +2,7 @@
 
 export const isAuthenticated = () => {
   try {
-    const session = localStorage.getItem('barelytics_session');
+    const session = localStorage.getItem('pm_session');
     if (!session) return false;
     
     const parsedSession = JSON.parse(session);
@@ -15,7 +15,7 @@ export const isAuthenticated = () => {
 
 export const getAuthToken = () => {
   try {
-    const session = localStorage.getItem('barelytics_session');
+    const session = localStorage.getItem('pm_session');
     if (session) {
       const parsedSession = JSON.parse(session);
       return parsedSession.access_token;
@@ -27,7 +27,7 @@ export const getAuthToken = () => {
 };
 
 export const clearAuth = () => {
-  localStorage.removeItem('barelytics_session');
+  localStorage.removeItem('pm_session');
 };
 
 export const getAuthHeaders = () => {

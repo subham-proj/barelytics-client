@@ -23,7 +23,7 @@
 
   function getSessionId() {
     try {
-      var key = 'barelytics_session_' + projectId;
+      var key = 'pm_session_' + projectId;
       var sid = sessionStorage.getItem(key);
       if (!sid) {
         sid = Math.random().toString(36).slice(2) + Date.now();
@@ -182,7 +182,7 @@
       }
 
       if (config.custom_events) {
-        window.barelyticsTrack = function(event, props) {
+        window.pagemetricsTrack = function(event, props) {
           post({
             type: 'custom',
             event: event,
