@@ -38,3 +38,6 @@ export const ANALYTICS_TOP_LOCATIONS_ENDPOINT = (projectId, from, to) =>
 
 export const ANALYTICS_BROWSER_ANALYTICS_ENDPOINT = (projectId, from, to) => 
   `${BASE_URL}/analytics/browser-analytics?project_id=${projectId}&from=${from}&to=${to}`;
+
+// Settings endpoints
+export const ACCOUNT_SETTINGS_ENDPOINT = `${BASE_URL}/users/account-settings`;
