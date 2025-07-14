@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   fetchAccountSettings,
@@ -15,13 +15,15 @@ export default function useSettingsState() {
   const [editMode, setEditMode] = useState(false);
   const [fields, setFields] = useState({ full_name: '', company: '' });
   const [original, setOriginal] = useState({ full_name: '', company: '' });
+  const lastFetchedUserId = useRef(null);
 
-  // Fetch on mount or when user changes
   useEffect(() => {
-    if (authUser?.id) {
+    if (!authUser?.id) return;
+    if (!settings.fetched || lastFetchedUserId.current !== authUser.id) {
       dispatch(fetchAccountSettings(authUser.id));
+      lastFetchedUserId.current = authUser.id;
     }
-  }, [dispatch, authUser?.id]);
+  }, [authUser?.id, dispatch]);
 
   // Sync local state with Redux state
   useEffect(() => {
@@ -66,6 +68,7 @@ export default function useSettingsState() {
     setEditMode(false);
   };
 
+  // Auto-clear success after 2s
   useEffect(() => {
     if (settings.success) {
       const timer = setTimeout(() => {
@@ -75,6 +78,7 @@ export default function useSettingsState() {
     }
   }, [settings.success, dispatch]);
 
+  // Auto-clear error after 3s
   useEffect(() => {
     if (settings.error) {
       const timer = setTimeout(() => {

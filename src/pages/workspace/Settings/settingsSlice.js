@@ -77,7 +77,6 @@ const settingsSlice = createSlice({
       .addCase(fetchAccountSettings.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.fetched = false;
       })
       .addCase(updateAccountSettings.pending, (state) => {
         state.loading = true;

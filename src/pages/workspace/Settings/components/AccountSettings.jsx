@@ -6,6 +6,7 @@ import { User, Save, RotateCcw, Lock, CheckCircle, AlertTriangle } from 'lucide-
 import ChangePasswordModal from './ChangePasswordModal';
 import { useToast } from '@/hooks/use-toast';
 import useSettingsState from '../hooks/useSettingsState';
+import {ListCardShimmer} from '@/components/ui/shimmer';
 
 const AccountSettings = () => {
   const {
@@ -52,7 +53,7 @@ const AccountSettings = () => {
   };
 
   if (loading && !fetched) {
-    return <div className="p-6">Loading account settings...</div>;
+    return <div className="p-6"><ListCardShimmer className="h-40 w-full rounded-xl" /></div>;
   }
 
   return (
