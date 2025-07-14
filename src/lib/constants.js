@@ -6,6 +6,7 @@ export const SIGNUP_ENDPOINT = `${BASE_URL}/auth/signup`;
 
 // Project endpoints
 export const PROJECTS_ENDPOINT = `${BASE_URL}/projects`;
+export const PROJECT_DELETE_ENDPOINT = `${BASE_URL}/projects/delete`;
 
 // Config endpoint for a given project
 export const CONFIG_ENDPOINT = (projectId) => `${BASE_URL}/projects/${projectId}/config`;
@@ -42,3 +43,5 @@ export const ANALYTICS_BROWSER_ANALYTICS_ENDPOINT = (projectId, from, to) =>
 // Settings endpoints
 export const ACCOUNT_SETTINGS_ENDPOINT = `${BASE_URL}/users/account-settings`;
 export const CHANGE_PASSWORD_ENDPOINT = `${BASE_URL}/users/change-password`;
+export const DELETE_PROJECT_ENDPOINT = (projectId) => `${BASE_URL}/projects/${projectId}`;
+export const DELETE_ACCOUNT_ENDPOINT = `${BASE_URL}/users/delete`;

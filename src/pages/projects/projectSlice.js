@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { createAuthAxios, createAsyncThunkErrorHandler } from '@/lib/api';
-import { PROJECTS_ENDPOINT } from '@/lib/constants';
+import { PROJECTS_ENDPOINT, PROJECT_DELETE_ENDPOINT } from '@/lib/constants';
 
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
@@ -22,6 +22,19 @@ export const createProject = createAsyncThunk(
       const authAxios = createAuthAxios();
       const response = await authAxios.post(PROJECTS_ENDPOINT, projectData);
       return response.data;
+    } catch (error) {
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
+    }
+  }
+);
+
+export const deleteProject = createAsyncThunk(
+  'projects/deleteProject',
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const authAxios = createAuthAxios();
+      await authAxios.post(PROJECT_DELETE_ENDPOINT, { project_id: projectId });
+      return projectId;
     } catch (error) {
       return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
@@ -81,6 +94,17 @@ const projectSlice = createSlice({
       })
       .addCase(createProject.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+      // Delete project
+      .addCase(deleteProject.fulfilled, (state, action) => {
+        const deletedId = action.payload;
+        state.projects = state.projects.filter(p => p.id !== deletedId);
+        if (state.currentProject && state.currentProject.id === deletedId) {
+          state.currentProject = state.projects.length > 0 ? state.projects[0] : null;
+        }
+      })
+      .addCase(deleteProject.rejected, (state, action) => {
         state.error = action.payload;
       });
   },

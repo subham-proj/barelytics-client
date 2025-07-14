@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ACCOUNT_SETTINGS_ENDPOINT, CHANGE_PASSWORD_ENDPOINT } from '@/lib/constants';
+import { ACCOUNT_SETTINGS_ENDPOINT, CHANGE_PASSWORD_ENDPOINT, DELETE_ACCOUNT_ENDPOINT } from '@/lib/constants';
 import { createAuthAxios, createAsyncThunkErrorHandler } from '@/lib/api';
 
 export const fetchAccountSettings = createAsyncThunk(
@@ -44,6 +44,19 @@ export const changePassword = createAsyncThunk(
         new_password,
       });
       return response.data;
+    } catch (error) {
+      return rejectWithValue(createAsyncThunkErrorHandler(error));
+    }
+  }
+);
+
+export const deleteAccount = createAsyncThunk(
+  'settings/deleteAccount',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const authAxios = createAuthAxios();
+      await authAxios.post(DELETE_ACCOUNT_ENDPOINT, { user_id: userId });
+      return userId;
     } catch (error) {
       return rejectWithValue(createAsyncThunkErrorHandler(error));
     }
@@ -127,6 +140,12 @@ const settingsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.success = null;
+      })
+      .addCase(deleteAccount.fulfilled, (state, action) => {
+        Object.assign(state, initialState);
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });
