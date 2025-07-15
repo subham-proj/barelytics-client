@@ -6,8 +6,8 @@
   var projectId = script && script.getAttribute('data-project-id');
   if (!projectId) return;
 
-  var configEndpoint = `http://localhost:3000/api/projects/${projectId}/config`;
-  var trackingEndpoint = `http://localhost:3000/api/tracking`;
+  var configEndpoint = `https://pagemetrics-server.onrender.com/api/projects/${projectId}/config`;
+  var trackingEndpoint = `https://pagemetrics-server.onrender.com/api/tracking`;
 
   function post(data) {
     try {
