@@ -8,8 +8,7 @@ const Integration = ({ project }) => {
 
   if (!project) return null;
 
-  // Example script with project id
-  const script = `<script async src="https://analytics.pagemetrics.app/tracker.js" data-project-id="${project.id}"></script>`;
+  const script = `<script async src="https://trypagemetrics.netlify.app/tracker.js" data-project-id="${project.id}"></script>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(script);
@@ -17,9 +16,8 @@ const Integration = ({ project }) => {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  // Dummy handler for test installation
   const handleTestInstallation = () => {
-    window.open(project.website || 'https://yourwebsite.com', '_blank');
+    window.open(project.website || 'https://trypagemetrics.netlify.app', '_blank');
   };
 
   return (
