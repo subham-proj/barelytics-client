@@ -65,7 +65,6 @@
     var ua = navigator.userAgent;
     var browser = 'Unknown';
     var device = 'desktop';
-    // Browser detection
     if (ua.includes('Chrome')) {
       browser = 'Chrome';
     } else if (ua.includes('Firefox')) {
@@ -77,7 +76,6 @@
     } else if (ua.includes('Opera')) {
       browser = 'Opera';
     }
-    // Device detection
     if (ua.includes('Mobile') || ua.includes('Android') || ua.includes('iPhone')) {
       device = 'mobile';
     } else if (ua.includes('Tablet') || ua.includes('iPad')) {
@@ -103,14 +101,15 @@
         });
       })
       .catch(function(error) { 
+  
         cb(null); 
       });
   }
 
-  // Main initialization
+  // Main initializatio
+
   fetch(configEndpoint)
     .then(function(res) { 
-      
       if (!res.ok) throw new Error('Config fetch failed: ' + res.status);
       return res.json(); 
     })
@@ -121,7 +120,6 @@
       var trackedScroll = 0;
       var timingSent = false;
 
-      // Base payload structure
       function createBasePayload() {
         return {
           project_id: projectId,
@@ -134,16 +132,11 @@
         };
       }
 
-      // Page views tracking
-      if (config.page_views) {
-        
+      // Always send page_view for debugging
+      (function sendPageView() {
         var data = createBasePayload();
         data.event_type = 'page_view';
-        
-        if (config.referrers) {
-          data.referrer = document.referrer;
-        }
-        
+        data.referrer = document.referrer;
         if (config.locations) {
           fetchLocation(function(loc) {
             if (loc) {
@@ -155,7 +148,7 @@
         } else {
           post(data);
         }
-      }
+      })();
 
       // Sessions tracking
       if (config.sessions) {
@@ -182,8 +175,8 @@
       if (config.scroll_depth) {
         window.addEventListener('scroll', function() {
           var scrolled = Math.floor((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-          if (scrolled > trackedScroll && scrolled >= 25) { // Only track meaningful scroll increments
-            trackedScroll = Math.floor(scrolled / 25) * 25; // Track in 25% increments
+          if (scrolled > trackedScroll && scrolled >= 25) {
+            trackedScroll = Math.floor(scrolled / 25) * 25;
             var data = createBasePayload();
             data.event_type = 'scroll';
             data.percent = trackedScroll;
@@ -208,7 +201,6 @@
             timingSent = true;
           }
         }
-        
         if (document.readyState === 'complete') {
           setTimeout(sendTimingData, 0);
         } else {
