@@ -138,6 +138,7 @@ const Configuration = ({ project }) => {
                 <Switch 
                   checked={!!localConfig?.[option.key]} 
                   onChange={() => handleToggle(option.key)} 
+                  disabled={option.key === 'customEvents'}
                 />
               </div>
             ))}

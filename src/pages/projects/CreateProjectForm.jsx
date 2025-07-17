@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createProject } from './projectSlice';
+import { fetchProjects } from './projectSlice';
 import { logout } from '@/pages/auth/authSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -39,7 +40,7 @@ const CreateProjectForm = () => {
     }
     
     if (result.meta.requestStatus === 'fulfilled') {
-      // Redirect to the project dashboard
+      await dispatch(fetchProjects());
       navigate(`/${result.payload.id}`);
     }
   };
