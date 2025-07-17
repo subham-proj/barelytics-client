@@ -44,14 +44,36 @@ const Analytics = ({ project }) => {
   
   const [showShimmer, setShowShimmer] = useState(true);
   
-  // Default to last 30 days
-  const [dateRange, setDateRange] = useState(() => {
+  // Persist date range in localStorage
+  const getInitialDateRange = () => {
+    const saved = localStorage.getItem('analyticsDateRange');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          from: parsed.from ? new Date(parsed.from) : null,
+          to: parsed.to ? new Date(parsed.to) : null,
+        };
+      } catch {
+        // fallback to default
+      }
+    }
     const defaultRange = getDefaultDateRange();
     return {
       from: new Date(defaultRange.from),
       to: new Date(defaultRange.to)
     };
-  });
+  };
+  const [dateRange, setDateRange] = useState(getInitialDateRange);
+  // Save date range to localStorage on change
+  useEffect(() => {
+    if (dateRange.from || dateRange.to) {
+      localStorage.setItem('analyticsDateRange', JSON.stringify({
+        from: dateRange.from ? dateRange.from.toISOString() : null,
+        to: dateRange.to ? dateRange.to.toISOString() : null,
+      }));
+    }
+  }, [dateRange]);
 
   // Set current project when component mounts
   useEffect(() => {

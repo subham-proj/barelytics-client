@@ -19,13 +19,15 @@ export const fetchOverview = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { overview, lastFetched, currentProjectId } = state.overview;
+      const { overview, lastFetched, currentProjectId, lastFrom, lastTo } = state.overview;
       
       // Don't fetch if we have recent data for the same project and date range, unless forced
       if (
         !force &&
         overview && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return overview;
@@ -102,6 +104,8 @@ const initialState = {
   error: null,
   lastFetched: null,
   currentProjectId: null,
+  lastFrom: null, // store last used from date
+  lastTo: null,   // store last used to date
 };
 
 const analyticsOverviewSlice = createSlice({
@@ -115,6 +119,8 @@ const analyticsOverviewSlice = createSlice({
       state.error = null;
       state.lastFetched = null;
       state.currentProjectId = null;
+      state.lastFrom = null;
+      state.lastTo = null;
     },
     setCurrentProject: (state, action) => {
       // If the project is actually changing, clear all data
@@ -124,6 +130,8 @@ const analyticsOverviewSlice = createSlice({
         state.topReferrers = [];
         state.error = null;
         state.lastFetched = null;
+        state.lastFrom = null;
+        state.lastTo = null;
       }
       state.currentProjectId = action.payload;
     },
@@ -140,6 +148,11 @@ const analyticsOverviewSlice = createSlice({
         state.overview = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        // Store the last used date range
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
       })
       .addCase(fetchOverview.rejected, (state, action) => {
         state.loading = false;

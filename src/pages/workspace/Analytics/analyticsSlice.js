@@ -22,12 +22,14 @@ export const fetchNewVsReturning = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { newVsReturning, lastFetched, currentProjectId } = state.analytics;
+      const { newVsReturning, lastFetched, currentProjectId, lastFrom, lastTo } = state.analytics;
       
       if (
         !force &&
         newVsReturning && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return newVsReturning;
@@ -48,12 +50,14 @@ export const fetchConversionRate = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { conversionRate, lastFetched, currentProjectId } = state.analytics;
+      const { conversionRate, lastFetched, currentProjectId, lastFrom, lastTo } = state.analytics;
       
       if (
         !force &&
         conversionRate && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return conversionRate;
@@ -74,12 +78,14 @@ export const fetchGlobalReach = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { globalReach, lastFetched, currentProjectId } = state.analytics;
+      const { globalReach, lastFetched, currentProjectId, lastFrom, lastTo } = state.analytics;
       
       if (
         !force &&
         globalReach && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return globalReach;
@@ -100,12 +106,14 @@ export const fetchDeviceTypes = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { deviceTypes, lastFetched, currentProjectId } = state.analytics;
+      const { deviceTypes, lastFetched, currentProjectId, lastFrom, lastTo } = state.analytics;
       
       if (
         !force &&
         deviceTypes && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return deviceTypes;
@@ -126,12 +134,14 @@ export const fetchTopLocations = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { topLocations, lastFetched, currentProjectId } = state.analytics;
+      const { topLocations, lastFetched, currentProjectId, lastFrom, lastTo } = state.analytics;
       
       if (
         !force &&
         topLocations && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return topLocations;
@@ -152,12 +162,14 @@ export const fetchBrowserAnalytics = createAsyncThunk(
   async ({ projectId, from, to, force = false }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { browserAnalytics, lastFetched, currentProjectId } = state.analytics;
+      const { browserAnalytics, lastFetched, currentProjectId, lastFrom, lastTo } = state.analytics;
       
       if (
         !force &&
         browserAnalytics && 
         currentProjectId === projectId &&
+        lastFrom === from &&
+        lastTo === to &&
         !isDataStale(lastFetched)
       ) {
         return browserAnalytics;
@@ -183,6 +195,8 @@ const initialState = {
   error: null,
   lastFetched: null,
   currentProjectId: null,
+  lastFrom: null, // store last used from date
+  lastTo: null,   // store last used to date
   // Individual loading states for better UX
   individualLoading: {
     newVsReturning: false,
@@ -217,6 +231,8 @@ const analyticsSlice = createSlice({
       state.error = null;
       state.lastFetched = null;
       state.currentProjectId = null;
+      state.lastFrom = null;
+      state.lastTo = null;
       state.individualErrors = {
         newVsReturning: null,
         conversionRate: null,
@@ -237,6 +253,8 @@ const analyticsSlice = createSlice({
         state.browserAnalytics = null;
         state.error = null;
         state.lastFetched = null;
+        state.lastFrom = null;
+        state.lastTo = null;
         state.individualErrors = {
           newVsReturning: null,
           conversionRate: null,
@@ -269,6 +287,10 @@ const analyticsSlice = createSlice({
         state.newVsReturning = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
         state.individualLoading.newVsReturning = false;
         state.individualErrors.newVsReturning = null;
       })
@@ -290,6 +312,10 @@ const analyticsSlice = createSlice({
         state.conversionRate = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
         state.individualLoading.conversionRate = false;
         state.individualErrors.conversionRate = null;
       })
@@ -311,6 +337,10 @@ const analyticsSlice = createSlice({
         state.globalReach = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
         state.individualLoading.globalReach = false;
         state.individualErrors.globalReach = null;
       })
@@ -332,6 +362,10 @@ const analyticsSlice = createSlice({
         state.deviceTypes = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
         state.individualLoading.deviceTypes = false;
         state.individualErrors.deviceTypes = null;
       })
@@ -353,6 +387,10 @@ const analyticsSlice = createSlice({
         state.topLocations = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
         state.individualLoading.topLocations = false;
         state.individualErrors.topLocations = null;
       })
@@ -374,6 +412,10 @@ const analyticsSlice = createSlice({
         state.browserAnalytics = action.payload;
         state.error = null;
         state.lastFetched = Date.now();
+        if (action.meta && action.meta.arg) {
+          state.lastFrom = action.meta.arg.from;
+          state.lastTo = action.meta.arg.to;
+        }
         state.individualLoading.browserAnalytics = false;
         state.individualErrors.browserAnalytics = null;
       })
